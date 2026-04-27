@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北京本周末活动地图 | 2026.05.02-05.03</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: #f5f6fa; }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #c44569 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .header p { font-size: 14px; opacity: 0.95; }
+        
+        .container { display: flex; height: calc(100vh - 80px); }
+        
+        .sidebar {
+            width: 360px;
+            background: white;
+            overflow-y: auto;
+            border-right: 1px solid #e8e8e8;
+            padding: 16px;
+        }
+        
+        .category { margin-bottom: 20px; }
+        .category-title {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .activity-card {
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .activity-card:hover { transform: translateX(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .activity-card h4 { font-size: 14px; color: #333; margin-bottom: 6px; }
+        .activity-card .meta { font-size: 12px; color: #888; line-height: 1.6; }
+        .activity-card .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 6px; }
+        
+        .anime { border-color: #9b59b6; }
+        .anime .category-title { background: #f3e5f5; color: #7b1fa2; }
+        .anime .tag { background: #f3e5f5; color: #7b1fa2; }
+        
+        .star { border-color: #e74c3c; }
+        .star .category-title { background: #ffebee; color: #c62828; }
+        .star .tag { background: #ffebee; color: #c62828; }
+        
+        .leisure { border-color: #27ae60; }
+        .leisure .category-title { background: #e8f5e9; color: #2e7d32; }
+        .leisure .tag { background: #e8f5e9; color: #2e7d32; }
+        
+        .sport { border-color: #3498db; }
+        .sport .category-title { background: #e3f2fd; color: #1565c0; }
+        .sport .tag { background: #e3f2fd; color: #1565c0; }
+        
+        .other { border-color: #e67e22; }
+        .other .category-title { background: #fff3e0; color: #e65100; }
+        .other .tag { background: #fff3e0; color: #e65100; }
+        
+        #map { flex: 1; }
+        
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+            z-index: 1000;
+            font-size: 13px;
+        }
+        .legend h4 { margin-bottom: 8px; font-size: 14px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        
+        .footer-link {
+            text-align: center;
+            padding: 12px;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; height: 40vh; }
+            #map { height: 60vh; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 北京本周末活动地图</h1>
+        <p>2026年5月2日 - 5月3日 | 劳动节假期精选活动指南</p>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <!-- 动漫派 -->
+            <div class="category anime">
+                <div class="category-title">🎨 动漫派</div>
+                <div class="activity-card" data-lat="39.999" data-lng="116.395" data-name="北京第28届IJOY动漫游戏狂欢节">
+                    <h4>北京第28届IJOY动漫游戏狂欢节</h4>
+                    <div class="meta">
+                        📅 5月1日-3日<br>
+                        📍 国家会议中心（E1-E4馆）<br>
+                        💰 门票80元起
+                    </div>
+                    <span class="tag">百位嘉宾·万名COSER·十大实景摄影棚</span>
+                </div>
+            </div>
+            
+            <!-- 追星派 -->
+            <div class="category star">
+                <div class="category-title">⭐ 追星派</div>
+                <div class="activity-card" data-lat="40.440" data-lng="115.975" data-name="2026北京超级草莓音乐节">
+                    <h4>2026北京超级草莓音乐节</h4>
+                    <div class="meta">
+                        📅 5月2日-4日<br>
+                        📍 北京世园国际旅游度假区飞行营地<br>
+                        💰 门票369元起
+                    </div>
+                    <span class="tag">阿肆·蔡健雅·陈楚生·厨子和戏子</span>
+                </div>
+                <div class="activity-card" data-lat="40.014" data-lng="116.318" data-name="2026北京钻石音乐嘉年华">
+                    <h4>2026北京钻石音乐嘉年华</h4>
+                    <div class="meta">
+                        📅 5月1日-3日<br>
+                        📍 国家网球中心·首创钻石球场<br>
+                        💰 详见售票平台
+                    </div>
+                    <span class="tag">袁娅维·老狼·品冠·金海心</span>
+                </div>
+                <div class="activity-card" data-lat="39.942" data-lng="116.337" data-name="周华健演唱会">
+                    <h4>周华健「少年的奇幻之旅3.0」演唱会</h4>
+                    <div class="meta">
+                        📅 5月1日-3日<br>
+                        📍 首都体育馆<br>
+                        💰 详见售票平台
+                    </div>
+                    <span class="tag">连唱3场·经典金曲全回顾</span>
+                </div>
+                <div class="activity-card" data-lat="39.993" data-lng="116.397" data-name="五月天演唱会">
+                    <h4>五月天演唱会</h4>
+                    <div class="meta">
+                        📅 五一期间<br>
+                        📍 国家体育场（鸟巢）<br>
+                        💰 详见售票平台
+                    </div>
+                    <span class="tag">连唱3场·鸟巢限定周边</span>
+                </div>
+            </div>
+            
+            <!-- 休闲派 -->
+            <div class="category leisure">
+                <div class="category-title">🌿 休闲派</div>
+                <div class="activity-card" data-lat="39.934" data-lng="116.483" data-name="2026巨C汉堡节">
+                    <h4>2026巨C汉堡节 Juicy Burger Fest</h4>
+                    <div class="meta">
+                        📅 5月1日-4日 11:00-22:00<br>
+                        📍 朝阳公园·微博IN跨次元引力场<br>
+                        💰 免门票入场
+                    </div>
+                    <span class="tag">40家品牌·14城风味·全国大满贯</span>
+                </div>
+                <div class="activity-card" data-lat="39.920" data-lng="116.417" data-name="隆福寺潮集">
+                    <h4>隆福寺「马不停蹄，隆福潮集」</h4>
+                    <div class="meta">
+                        📅 5月1日-26日<br>
+                        📍 东城区隆福寺中心广场<br>
+                        💰 免费
+                    </div>
+                    <span class="tag">非遗手作·国潮文创·匠心好物</span>
+                </div>
+                <div class="activity-card" data-lat="39.912" data-lng="116.162" data-name="首钢园精酿啤酒节">
+                    <h4>首钢园·北京精酿啤酒节</h4>
+                    <div class="meta">
+                        📅 5月1日-4日<br>
+                        📍 首钢国际会展中心11、12号馆<br>
+                        💰 详见现场
+                    </div>
+                    <span class="tag">精酿啤酒·工业风场地·潮流社交</span>
+                </div>
+                <div class="activity-card" data-lat="39.865" data-lng="116.307" data-name="2026北京国际花展">
+                    <h4>2026北京国际花展</h4>
+                    <div class="meta">
+                        📅 4月28日-5月30日<br>
+                        📍 丽泽金融商务区<br>
+                        💰 免费
+                    </div>
+                    <span class="tag">12万㎡花海·60+精品花园·紫色梦幻</span>
+                </div>
+                <div class="activity-card" data-lat="39.800" data-lng="116.400" data-name="南森书市">
+                    <h4>南苑森林湿地公园·南森书市</h4>
+                    <div class="meta">
+                        📅 4月4日-5月5日<br>
+                        📍 南苑森林湿地公园<br>
+                        💰 免费入园
+                    </div>
+                    <span class="tag">100+展位·以书换蔬·草坪音乐会</span>
+                </div>
+                <div class="activity-card" data-lat="39.810" data-lng="116.290" data-name="世界公园">
+                    <h4>世界公园踏青游园</h4>
+                    <div class="meta">
+                        📅 5月1日-5日<br>
+                        📍 世界公园<br>
+                        💰 需购票
+                    </div>
+                    <span class="tag">异国风情演艺·NPC互动·踏青赏花</span>
+                </div>
+            </div>
+            
+            <!-- 运动派 -->
+            <div class="category sport">
+                <div class="category-title">🏃 运动派</div>
+                <div class="activity-card" data-lat="39.990" data-lng="116.190" data-name="西山踏春跑">
+                    <h4>京西香巴拉·第四届西山踏春跑</h4>
+                    <div class="meta">
+                        📅 5月2日<br>
+                        📍 北京西山国家森林公园东门<br>
+                        💰 需报名
+                    </div>
+                    <span class="tag">山地越野·春日踏青·挑战自我</span>
+                </div>
+                <div class="activity-card" data-lat="40.020" data-lng="116.395" data-name="奥森青春轨迹跑">
+                    <h4>2026奥森青春轨迹跑</h4>
+                    <div class="meta">
+                        📅 5月2日<br>
+                        📍 奥林匹克森林公园北园东门<br>
+                        💰 需报名
+                    </div>
+                    <span class="tag">城市绿肺·轨迹打卡·活力开跑</span>
+                </div>
+                <div class="activity-card" data-lat="39.790" data-lng="116.460" data-name="南海子畅跑节">
+                    <h4>「向阳致远」迎春畅跑节</h4>
+                    <div class="meta">
+                        📅 5月2日<br>
+                        📍 南海子公园南2门<br>
+                        💰 需报名
+                    </div>
+                    <span class="tag">湿地风光·亲子友好·健康畅跑</span>
+                </div>
+                <div class="activity-card" data-lat="39.940" data-lng="116.390" data-name="中轴线跑">
+                    <h4>北京皇家路线·中轴线跑</h4>
+                    <div class="meta">
+                        📅 5月3日<br>
+                        📍 钟鼓楼广场<br>
+                        💰 需报名
+                    </div>
+                    <span class="tag">一条线读懂八百年·古都文化跑</span>
+                </div>
+            </div>
+            
+            <!-- 其他 -->
+            <div class="category other">
+                <div class="category-title">🎁 其他·免费福利</div>
+                <div class="activity-card" data-lat="39.690" data-lng="115.930" data-name="周口店遗址">
+                    <h4>房山感恩游·免费景区</h4>
+                    <div class="meta">
+                        📅 5月1日-5日<br>
+                        📍 房山区（周口店遗址/云居寺/石花洞/上方山）<br>
+                        💰 <b>免门票开放</b>
+                    </div>
+                    <span class="tag">感恩回馈·国有景区·限时免费</span>
+                </div>
+                <div class="activity-card" data-lat="39.920" data-lng="116.410" data-name="Color Walk">
+                    <h4>Color Walk 城市微旅行</h4>
+                    <div class="meta">
+                        📅 五一期间<br>
+                        📍 6条精品线路（白塔寺/东岳庙/77文创园等）<br>
+                        💰 免费
+                    </div>
+                    <span class="tag">漫步北京·文化地标·潮流打卡</span>
+                </div>
+            </div>
+            
+            <div class="footer-link">
+                更多活动详情请关注各官方渠道<br>
+                地图数据仅供参考，出行前请确认最新信息
+            </div>
+        </div>
+        
+        <div id="map"></div>
+        
+        <div class="legend">
+            <h4>📍 图例</h4>
+            <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div>动漫派</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>追星派</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#27ae60"></div>休闲派</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#3498db"></div>运动派</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e67e22"></div>其他</div>
+        </div>
+    </div>
+    
+    <script>
+        // 初始化地图
+        const map = L.map('map').setView([39.93, 116.40], 10);
+        
+        // 添加底图
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // 派系颜色配置
+        const colors = {
+            anime: '#9b59b6',
+            star: '#e74c3c',
+            leisure: '#27ae60',
+            sport: '#3498db',
+            other: '#e67e22'
+        };
+        
+        // 创建自定义图标
+        function createIcon(color) {
+            return L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>`,
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+            });
+        }
+        
+        // 活动数据
+        const activities = [
+            { name: "北京第28届IJOY动漫游戏狂欢节", lat: 39.999, lng: 116.395, cat: "anime", desc: "5月1-3日 | 国家会议中心 | 门票80元起" },
+            { name: "2026北京超级草莓音乐节", lat: 40.440, lng: 115.975, cat: "star", desc: "5月2-4日 | 世园飞行营地 | 门票369元起" },
+            { name: "2026北京钻石音乐嘉年华", lat: 40.014, lng: 116.318, cat: "star", desc: "5月1-3日 | 国家网球中心 | 多组艺人" },
+            { name: "周华健演唱会", lat: 39.942, lng: 116.337, cat: "star", desc: "5月1-3日 | 首都体育馆 | 连唱3场" },
+            { name: "五月天演唱会", lat: 39.993, lng: 116.397, cat: "star", desc: "五一期间 | 鸟巢 | 限定周边" },
+            { name: "2026巨C汉堡节", lat: 39.934, lng: 116.483, cat: "leisure", desc: "5月1-4日 | 朝阳公园 | 免门票" },
+            { name: "隆福寺潮集", lat: 39.920, lng: 116.417, cat: "leisure", desc: "5月1-26日 | 隆福寺广场 | 免费" },
+            { name: "首钢园精酿啤酒节", lat: 39.912, lng: 116.162, cat: "leisure", desc: "5月1-4日 | 首钢国际会展中心" },
+            { name: "2026北京国际花展", lat: 39.865, lng: 116.307, cat: "leisure", desc: "4.28-5.30 | 丽泽商务区 | 免费" },
+            { name: "南森书市", lat: 39.800, lng: 116.400, cat: "leisure", desc: "4.4-5.5 | 南苑森林湿地公园 | 免费" },
+            { name: "世界公园踏青", lat: 39.810, lng: 116.290, cat: "leime", desc: "5月1-5日 | 世界公园" },
+            { name: "西山踏春跑", lat: 39.990, lng: 116.190, cat: "sport", desc: "5月2日 | 西山国家森林公园" },
+            { name: "奥森青春轨迹跑", lat: 40.020, lng: 116.395, cat: "sport", desc: "5月2日 | 奥森北园东门" },
+            { name: "南海子畅跑节", lat: 39.790, lng: 116.460, cat: "sport", desc: "5月2日 | 南海子公园" },
+            { name: "中轴线跑", lat: 39.940, lng: 116.390, cat: "sport", desc: "5月3日 | 钟鼓楼广场" },
+            { name: "房山免费景区", lat: 39.690, lng: 115.930, cat: "other", desc: "5月1-5日 | 周口店/云居寺/石花洞 | 免门票" },
+            { name: "Color Walk", lat: 39.920, lng: 116.410, cat: "other", desc: "五一期间 | 6条城市微旅行线路 | 免费" }
+        ];
+        
+        // 添加标记
+        const markers = {};
+        activities.forEach((act, idx) => {
+            const marker = L.marker([act.lat, act.lng], { icon: createIcon(colors[act.cat]) })
+                .addTo(map)
+                .bindPopup(`<b>${act.name}</b><br>${act.desc}`);
+            markers[idx] = marker;
+        });
+        
+        // 卡片点击事件
+        document.querySelectorAll('.activity-card').forEach((card, idx) => {
+            card.addEventListener('click', () => {
+                const lat = parseFloat(card.dataset.lat);
+                const lng = parseFloat(card.dataset.lng);
+                const name = card.dataset.name;
+                map.setView([lat, lng], 15);
+                // 找到对应的 marker 并打开 popup
+                activities.forEach((act, i) => {
+                    if (act.name === name && markers[i]) {
+                        markers[i].openPopup();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
